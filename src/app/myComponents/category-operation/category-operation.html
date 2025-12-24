@@ -1,1 +1,66 @@
-<p>category-operation works!</p>
+<table>
+    <tr>
+        <th>ID</th>
+        <TH>İSİM</TH>
+        <th>Açıklama</th>
+        <th>İşlemler</th>
+    </tr>
+    @for(category of categories();track category.id){
+        <tr>
+            <td>{{category.id}}</td>
+            <td>{{category.categoryName}}</td>
+            <td>{{category.description}}</td>
+            <td>
+                <button (click)="startUpdate(category)">Güncelle</button>
+                <button (click)="onDelete(category.id)">Sil</button>
+            </td>
+        </tr>
+    }
+</table>
+<hr>
+<form [formGroup]="createform" (ngSubmit)="onCreate()">
+    <h3>Kategori Ekle</h3>
+    <label >
+        İSİM
+        <input type="text" formControlName="name"/>
+    </label>
+    @if(getErrorMessageByName(createform,'name');as msg){
+        <div class="error">
+            {{msg}}
+        </div>
+    }
+    <label for="">AÇIKLAMA
+            <input type="text" formControlName="description"/>
+        </label>
+    @if(getErrorMessageByName(createform,'description');as msg){
+         <div class="error">
+            {{msg}}
+        </div>
+    }
+    <button type="submit" [disabled]="createform.invalid">Ekle</button>
+</form>
+<hr>
+@if(selectedCategory()!==null){
+    <form [formGroup]="updateform" (ngSubmit)="onUpdate()">
+        <h3>Kategori Güncelle</h3>
+        <input type="hidden" formControlName="id">
+        <label >İSİM
+            <input type="text" formControlName="name">
+        </label>
+        @if(getErrorMessageByName(updateform,'name');as msg){
+         <div class="error">
+                {{msg}}
+            </div>
+        }
+        <label >Açıklama
+            <input type="text" formControlName="description">
+        </label>
+        @if(getErrorMessageByName(updateform,'description');as msg){
+         <div class="error">
+                {{msg}}
+            </div>
+        }
+        <button type="submit" [disabled]="updateform.invalid">Güncelle</button>
+        <button type="button" (click)="cancelUpdate()">İptal</button>
+    </form>
+}
