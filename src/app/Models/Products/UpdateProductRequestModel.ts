@@ -2,7 +2,7 @@ import { BaseProductsViewModel } from "./BaseProductViewModel";
 export class UpdateProductRequestModel extends BaseProductsViewModel{
     id:number;
     constructor(id:number,productName:string,unitPrice:number,categoryId:number){
-        super(productName,categoryId,unitPrice);
+        super(productName,unitPrice,categoryId);
         this.id=id;
     }
 }

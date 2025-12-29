@@ -1,1 +1,99 @@
-
+<table>
+    <tr>
+        <th>ID</th>
+        <th>İsim</th>
+        <th>Fiyat</th>
+        <th>Kategori ID</th>
+        <th>İşlemler</th>
+    </tr>
+    @for(product of products();track product.id){
+        <tr>
+            <td>{{product.id}}</td>
+            <td>{{product.productName}}</td>
+            <td>{{product.unitprice}}</td>
+            <td>{{product.categoryId}}</td>
+            <td>
+                <button (click)="startUpdate(product)">Güncelle</button>
+                <button (click)="onDelete(product.id)">Sil</button>
+            </td>
+        </tr>
+    }
+</table>
+<hr>
+<form [formGroup]="createform" (ngSubmit)="onCreate()">
+    <h3>Ürün Ekle</h3>
+    <label>
+        İsim
+        <input type="text" formControlName="productName"/>
+    </label>
+    @if(getErrorMessageByName(createform,'productName');as msg){
+        <div class="error">
+            {{msg}}
+        </div>
+    }
+    <label>
+        Fiyat
+        <input type="number" formControlName="unitPrice" step="0.01"/>
+    </label>
+    @if(getErrorMessageByName(createform,'unitPrice');as msg){
+        <div class="error">
+            {{msg}}
+        </div>
+    }
+    <label>
+        Kategori
+        <select formControlName="categoryId">
+            <option value="0">Kategori Seçiniz</option>
+            @for(category of categories();track category.id){
+                <option [value]="category.id">{{category.categoryName}}</option>
+            }
+        </select>
+    </label>
+    @if(getErrorMessageByName(createform,'categoryId');as msg){
+        <div class="error">
+            {{msg}}
+        </div>
+    }
+    <button type="submit" [disabled]="createform.invalid">Ekle</button>
+</form>
+<hr>
+@if(selectedProduct()!==null){
+    <form [formGroup]="updateform" (ngSubmit)="onUpdate()">
+        <h3>Ürün Güncelle</h3>
+        <input type="hidden" formControlName="id">
+        <label>
+            İsim
+            <input type="text" formControlName="productName">
+        </label>
+        @if(getErrorMessageByName(updateform,'productName');as msg){
+            <div class="error">
+                {{msg}}
+            </div>
+        }
+        <label>
+            Fiyat
+            <input type="number" formControlName="unitPrice" step="0.01">
+        </label>
+        @if(getErrorMessageByName(updateform,'unitPrice');as msg){
+            <div class="error">
+                {{msg}}
+            </div>
+        }
+        <label>
+            Kategori
+            <select formControlName="categoryId">
+                <option value="0">Kategori Seçiniz</option>
+                @for(category of categories();track category.id){
+                    <option [value]="category.id">{{category.categoryName}}</option>
+                }
+            </select>
+        </label>
+        @if(getErrorMessageByName(updateform,'categoryId');as msg){
+            <div class="error">
+                {{msg}}
+            </div>
+        }
+        <button type="submit" [disabled]="updateform.invalid">Güncelle</button>
+        <button type="button" (click)="cancelUpdate()">İptal</button>
+    </form>
+}

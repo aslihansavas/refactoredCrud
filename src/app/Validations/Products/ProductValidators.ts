@@ -12,5 +12,6 @@ export const Productvalidators={
     ],
     categoryId:():ValidatorFn[] =>[
         Validators.required,
+        Validators.min(1),
     ],
 }

@@ -1,7 +1,9 @@
 import { Component,signal,inject,OnInit } from '@angular/core';
 import { AbstractControl,ReactiveFormsModule } from '@angular/forms';
 import { ProductApi } from '../../DataAccess/product-api';
+import { CategoryApi } from '../../DataAccess/category-api';
 import { ProductResponseModel } from '../../Models/Products/ProductResponseModel';
+import { CategoryResponseModel } from '../../Models/Categories/CategoryResponseModel';
 import { createProductForm,toCreateProductRequest } from '../../Validations/Products/CreateProductFormFactory';
 import { updateProductForm,toUpdateProductRequest } from '../../Validations/Products/UpdateProductFormFactory';
 @Component({
@@ -12,7 +14,9 @@ import { updateProductForm,toUpdateProductRequest } from '../../Validations/Prod
 })
 export class ProductOperation implements OnInit {
  private productApi=inject(ProductApi);
+ private categoryApi=inject(CategoryApi);
   protected products =signal<ProductResponseModel[]>([]);
+  protected categories =signal<CategoryResponseModel[]>([]);
   protected selectedProduct =signal<ProductResponseModel |null>(null);
   //UI State formları
 
@@ -26,9 +30,16 @@ export class ProductOperation implements OnInit {
       console.log("Ürün Listesi Alınamadı.",error);
     }
   }
+  private async refreshCategories():Promise<void>{
+    try {
+      const values=await this.categoryApi.getAll();
+      this.categories.set(values);
+    } catch (error) {
+      console.log("Kategori Listesi Alınamadı.",error);
+    }
+  }
   async ngOnInit():Promise<void> {
-    await this.refreshProducts();
-
+    await Promise.all([this.refreshProducts(), this.refreshCategories()]);
   }
   //Create İşlemleri
   async onCreate():Promise<void>{
@@ -91,10 +102,10 @@ export class ProductOperation implements OnInit {
     productName :'Ürün Adı',
     unitPrice :'Fiyat',
     id:'id',
-    categoryId:'Kategori ID',
+    categoryId:'Kategori',
   };
 
-  protected getErrorMessage(control:AbstractControl | null,label='BU ALAN'):string |null{
+  protected getErrorMessage(control:AbstractControl | null,label='BU ALAN',controlName?:string):string |null{
     if(!control || (!control.touched && !control.dirty) || !control.invalid) return null;
     else if(control.hasError('required')) return `${label} zorunludur.`;
     else if(control.hasError('minlength')){
@@ -107,6 +118,9 @@ export class ProductOperation implements OnInit {
     }
     else if(control.hasError('min')){
       const e=control.getError('min');
+      if(controlName === 'categoryId'){
+        return `${label} seçilmelidir.`;
+      }
       return `${label} Ürün fiyatı 0 dan az olamaz`;
     }
     else if(control.hasError('max')){
@@ -119,7 +133,7 @@ export class ProductOperation implements OnInit {
   protected getErrorMessageByName(form:{controls:Record<string,AbstractControl>},controlName:string):string |null{
     const control=form.controls[controlName];
     const label = this.labels[controlName]??controlName;
-    return this.getErrorMessage(control,label);
+    return this.getErrorMessage(control,label,controlName);
   }
 
 
